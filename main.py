@@ -10,7 +10,8 @@ from PCA.pca import *
 from PCA.plot_utils import *
 import matplotlib.image as mpimg
 from mpl_toolkits.mplot3d import Axes3D
-
+import scipy
+from scipy import io
 '''
 data = mnist.load_mnist_data()
 
@@ -37,7 +38,7 @@ plt.show()
 
 '''
 PCA image
-'''
+
 
 A = mpimg.imread('data/bird_small.png')
 
@@ -66,9 +67,27 @@ X_norm, mu, sigma = feature_normalize(X)
 # PCA 
 U, S = pca(X_norm)
 
+'''
 
+datafile = 'data/ex7faces.mat'
+mat = io.loadmat( datafile )
+X = mat['X']
 
+displayData(X[1:100, :])
 
+X_norm, mu, sima = feature_normalize(X)
+U, S = pca(X_norm)
 
+K = 100
+Z = project_data(X, U, K)
+
+print("Projected data Z has size of: ", len(Z))
+
+X_rec = recover_data(Z, U, K)
+
+displayData(X_norm[1:36, :])
+displayData(U[:, 1:36].T)
+
+displayData(X_rec[1:36, :])
 
 
