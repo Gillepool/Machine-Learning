@@ -74,7 +74,6 @@ def project_data(X, U, K):
         Z[i, :] = np.dot(x, U[:, 0:K])
     return Z
 
-
 def recover_data(Z, U, K):
     X_rec = np.zeros((Z.shape[0], U.shape[0]))
     for i in range(Z.shape[0]):
