@@ -12,6 +12,8 @@ class Trainer(object):
             self.X_val = data['X_val']
             self.y_val = data['y_val']
 
+           
+
         #kwargs
         self.optimizer = kwargs.pop('update_rule', 'adam')
         self.optimizer_config = kwargs.pop('optim_config', {})
@@ -78,8 +80,20 @@ class Trainer(object):
         scores = self.model.loss(X)
         y_pred.append(np.argmax(scores, axis=1))
         y_pred = np.hstack(y_pred)
+
+
         acc = np.mean(y_pred == y)
-        return acc
+
+        true_pos  = sum((y_pred == 1) & (y == 1))
+        false_pos = sum((y_pred == 1) & (y == 0))
+        false_neg = sum((y_pred == 0) & (y == 1))
+
+        precision 	= true_pos * 1.0 / (true_pos + false_pos)
+        recall  	= true_pos * 1.0 / (true_pos + false_neg)
+
+        f1 = (2 * precision * recall) / (precision + recall)
+
+        return acc, f1, precision, recall
 
     def _step(self):
 
@@ -101,6 +115,8 @@ class Trainer(object):
             next_W, next_config = self.optimizer(w, dW, config)
             self.model.params[p] = next_W
             self.optimizer_config[p] = next_config
+
+    
 
 
     def train(self):
@@ -129,9 +145,9 @@ class Trainer(object):
             first_it = (t == 0)
             last_it = (t == num_iterations + 1)
             if first_it or last_it or epoch_end or t%500==0:
-                train_acc = self.accuracy(self.X_train, self.y_train,
+                train_acc, _, _, _ = self.accuracy(self.X_train, self.y_train,
                                                 num_samples=1000)
-                val_acc = self.accuracy(self.X_val, self.y_val)
+                val_acc, f1, prec, rec = self.accuracy(self.X_val, self.y_val)
                 self.train_acc_history.append(train_acc)
                 self.val_acc_history.append(val_acc)
 
@@ -139,6 +155,7 @@ class Trainer(object):
                     print ('(Epoch %d / %d) train acc: %f; val_acc: %f' % (
                             self.epoch, self.num_epochs, train_acc, val_acc))
 
+                    print("F1: {} \t Precision {} \t recall {}".format(f1, prec, rec))
                 # Keep track of the best model
                 if val_acc > self.best_val_acc:
                     self.best_val_acc = val_acc
@@ -148,4 +165,6 @@ class Trainer(object):
 
         # At the end of training swap the best params into the model
         self.model.params = self.best_params
+        print(self.best_val_acc)
+        return train_acc, val_acc, f1, prec, rec
 

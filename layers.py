@@ -122,6 +122,11 @@ def spatial_batchnorm_forward(X, gamma, beta, params):
     out = out.reshape(N, H, W, C).transpose(0, 3, 1, 2)
     return out, cache
 
+def feature_normalize(X):
+    mu = np.mean(X, axis=0)
+    sigma = np.std(X, axis=0)
+    return (X-mu)/sigma, mu, sigma
+
 def spatial_batchnorm_backward(dOut, cache):
     N, C, W, H = dOut.shape
     dOut_flat = dOut.transpose(0, 2, 3, 1).reshape(-1, C)

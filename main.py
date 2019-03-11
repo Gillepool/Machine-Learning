@@ -12,7 +12,8 @@ import matplotlib.image as mpimg
 from mpl_toolkits.mplot3d import Axes3D
 import scipy
 from scipy import io
-'''
+
+
 data = mnist.load_mnist_data()
 
 
@@ -20,7 +21,11 @@ model = FullyConnectedNet([300], dropout=0.2)
 
 
 trainer = trainer.Trainer(model, data)
-trainer.train()
+train_acc, val_acc, f1, prec, rec = trainer.train()
+
+print("Final accuracy: {}".format(val_acc))
+print("Final F1: {} \t precision: {} \t recall {}".format(f1, prec, rec))
+
 
 plt.subplot(2, 1, 1)
 plt.plot(trainer.get_losshistory(), 'o')
@@ -34,7 +39,7 @@ plt.legend(['train', 'val'], loc='upper left')
 plt.xlabel('epoch')
 plt.ylabel('accuracy')
 plt.show()
-'''
+
 
 '''
 PCA image
@@ -67,7 +72,6 @@ X_norm, mu, sigma = feature_normalize(X)
 # PCA 
 U, S = pca(X_norm)
 
-'''
 
 datafile = 'data/ex7faces.mat'
 mat = io.loadmat( datafile )
@@ -85,9 +89,13 @@ print("Projected data Z has size of: ", len(Z))
 
 X_rec = recover_data(Z, U, K)
 
+#original faces
 displayData(X_norm[1:36, :])
+#PCA compressed faces
 displayData(U[:, 1:36].T)
-
+#Recovered faces
 displayData(X_rec[1:36, :])
 
 
+
+'''
